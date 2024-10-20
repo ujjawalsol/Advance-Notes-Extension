@@ -1,0 +1,51 @@
+.video-upload-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    border: 2px dashed #ccc;
+    padding: 20px;
+    margin-top: 20px;
+    background: #f9fafb;
+  }
+  
+  .video-upload-container:hover {
+    border-color: #3b82f6;
+  }
+  
+  .video-preview {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+  }
+  
+  .video-preview video {
+    max-width: 100%;
+    border-radius: 10px;
+  }
+  
+  .video-player-container {
+    width: 100%;
+  }
+  
+  .video-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+  
+  .video-actions button {
+    background-color: #f87171;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+  }
+  
+  .video-actions button:hover {
+    background-color: #dc2626;
+  }
+  

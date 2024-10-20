@@ -1,0 +1,44 @@
+.custom-codemirror .CodeMirror {
+  height: 390px;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative; /* Ensure the scrollbar doesn't take extra space */
+}
+
+/* Hide scrollbar by default */
+.CodeMirror-vscrollbar {
+  opacity: 0; /* Initially hide the scrollbar */
+  transition: opacity 0.3s ease; /* Smooth transition when showing/hiding */
+  scrollbar-width: 2px; /* For Firefox: Hide scrollbar */
+}
+
+/* For Webkit (Chrome, Safari, etc.) */
+.CodeMirror-vscrollbar::-webkit-scrollbar {
+  width: 0; /* Initially make the scrollbar invisible */
+}
+
+/* Show scrollbar on hover or when content is being scrolled */
+.custom-codemirror:hover .CodeMirror-vscrollbar,
+.CodeMirror-vscrollbar:active {
+  opacity: 1; /* Show scrollbar on hover or interaction */
+}
+
+/* Customize the visible scrollbar */
+.CodeMirror-vscrollbar::-webkit-scrollbar {
+  width: 8px !important; /* Width of the scrollbar */
+}
+
+.CodeMirror-vscrollbar::-webkit-scrollbar-track {
+  background: transparent; /* Transparent track */
+  border-radius: 8px; /* Rounded track */
+}
+
+.CodeMirror-vscrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(136, 136, 136, 0.8); /* Transparent thumb */
+  border-radius: 8px; /* Rounded scrollbar thumb */
+}
+
+.CodeMirror-vscrollbar::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(85, 85, 85, 0.8); /* Slightly darker on hover */
+}
+

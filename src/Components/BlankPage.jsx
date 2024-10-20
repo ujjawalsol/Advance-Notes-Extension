@@ -1,15 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
-import JoditEditor from 'jodit-react'; // Import the JoditEditor without braces
+import JoditEditor from 'jodit-react';
+import { Toaster, toast } from 'react-hot-toast';
 
 const BlankPage = () => {
-  const editor = useRef(null); // Create a ref for the editor
-  const [content, setContent] = useState(''); // State to hold the editor content
-  const [timeoutId, setTimeoutId] = useState(null); // State to hold timeout ID
+  const editor = useRef(null);
+  const [content, setContent] = useState('');
+  const [timeoutId, setTimeoutId] = useState(null);
+  const [fileName, setFileName] = useState('untitled'); // State for file name
 
-  // Configuration for the Jodit editor
   const config = {
-    height: 600, // Set a height for the editor
-    width: '100%', // Full width of the container
+    height: 400,
+    width: '100%',
     buttons: [
       'bold', 'italic', 'underline', 'strikethrough', '|',
       'font', 'fontsize', 'brush', '|',
@@ -18,12 +19,12 @@ const BlankPage = () => {
       'align', 'insertTable', '|',
       'undo', 'redo', '|',
       'clean', 'html', '|',
-      'print', 'source' // Removed 'fullsize' button
+      'print', 'source'
     ],
-    removeButtons: ['fullsize'], // Ensure 'fullsize' button is removed
+    removeButtons: ['fullsize'],
     uploader: {
-      insertImageAsBase64URI: true, // Insert images as base64 URIs
-      url: '/upload', // Your upload URL here
+      insertImageAsBase64URI: true,
+      url: '/upload',
       format: 'json',
       method: 'POST',
       headers: {
@@ -56,7 +57,6 @@ const BlankPage = () => {
     }
   };
 
-  // Load content from local storage on component mount
   useEffect(() => {
     const savedContent = localStorage.getItem('editorContent');
     if (savedContent) {
@@ -64,49 +64,54 @@ const BlankPage = () => {
     }
   }, []);
 
-  // Save content to local storage whenever it changes
   const handleContentChange = (newContent) => {
     setContent(newContent);
 
-    // Clear the previous timeout if it exists
     if (timeoutId) {
       clearTimeout(timeoutId);
     }
 
-    // Set a new timeout to save the content after 1 second
     const newTimeoutId = setTimeout(() => {
-      localStorage.setItem('editorContent', newContent); // Save to local storage
-    }, 0.1); // Save after 1 second of inactivity
+      localStorage.setItem('editorContent', newContent);
+    }, 1000);
 
-    setTimeoutId(newTimeoutId); // Update timeoutId state
+    setTimeoutId(newTimeoutId);
   };
 
-  // Function to handle save button click
   const handleSave = () => {
-    localStorage.setItem('editorContent', content); // Save content to local storage
-    alert('Content saved successfully!'); // Alert message for user
+    localStorage.setItem('editorContent', content);
+    toast.success('Note saved successfully!');
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-sky-200 to-white shadow-lg rounded-lg">
-      <h1 className="text-3xl font-bold mb-4 text-gray-800">Blank Page</h1>
-      <div className="w-full max-w-7xl border border-gray-300 rounded-lg overflow-hidden shadow-lg p-4"> {/* Responsive container */}
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-br from-white to-indigo-50 shadow-2xl rounded-lg">
+      <h1 className="text-2xl font-poppins font-bold mb-6 text-gray-900">Blank Page</h1>
+      <div className="w-full max-w-7xl border bg-gradient-to-r from-indigo-100 to-indigo-50 border-gray-300 rounded-lg overflow-hidden shadow-lg p-6">
+      <input
+        type="text"
+        value={fileName}
+        onChange={(e) => setFileName(e.target.value)}
+        className="mb-6 w-full max-w-md p-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300"
+        placeholder="Enter file name"
+      />
         <JoditEditor
           ref={editor}
           value={content}
-          config={config} // Include the config
-          tabIndex={1} // tabIndex for focus management
-          onBlur={handleContentChange} // Update content state
+          config={config}
+          tabIndex={1}
+          onBlur={handleContentChange}
         />
       </div>
       <button
         onClick={handleSave}
-        className="mt-4 bg-blue-500 text-white font-bold py-2 px-4 rounded shadow hover:bg-blue-600"
+        className="mt-6 bg-indigo-600 text-white font-semibold py-2 px-6 rounded-lg shadow hover:bg-indigo-700 transition duration-300"
       >
         Save
       </button>
+      <Toaster reverseOrder={false} />
     </div>
   );
+  
 };
 
 export default BlankPage;
