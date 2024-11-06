@@ -1,6 +1,7 @@
-import React from 'react';
-import "react-icons/fa"
-import { HashRouter as Router, Route, Routes } from 'react-router-dom';
+// App.jsx
+import React, { useState } from 'react';
+import { createHashRouter, RouterProvider } from 'react-router-dom';
+import Layout from './Components/Layout';
 import Home from './Components/Home';
 import BlankPage from './Components/BlankPage';
 import CodeStorage from './Components/CodeStorage';
@@ -10,19 +11,29 @@ import OtherStorage from './Components/OtherStorage';
 import LinkStorage from './Components/LinkStorage';
 
 const App = () => {
-  return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/blank" element={<BlankPage />} />
-        <Route path="/code" element={<CodeStorage />} />
-        <Route path='/video' element={<VideoStorage />} />
-        <Route path='/image' element={<ImageStorage />} />
-        <Route path='/other' element={<OtherStorage />} />
-        <Route path='/link' element={<LinkStorage />} />
-      </Routes>
-    </Router>
-  );
+    const [darkMode, setDarkMode] = useState(false);
+
+    const toggleDarkMode = () => {
+        setDarkMode(!darkMode);
+    };
+
+    const router = createHashRouter([
+        {
+            path: '/',
+            element: <Layout darkMode={darkMode} toggleDarkMode={toggleDarkMode} />,
+            children: [
+                { index: true, element: <Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} /> },
+                { path: 'blank', element: <BlankPage /> },
+                { path: 'code', element: <CodeStorage /> },
+                { path: 'video', element: <VideoStorage /> },
+                { path: 'image', element: <ImageStorage /> },
+                { path: 'other', element: <OtherStorage /> },
+                { path: 'link', element: <LinkStorage /> },
+            ],
+        },
+    ]);
+
+    return <RouterProvider router={router} />;
 };
 
 export default App;
