@@ -1,0 +1,35 @@
+--- Folder Structure ---
+eslint.config.js
+index.html
+package-lock.json
+package.json
+postcss.config.js
+[public]
+    ├── CodeStorage.css
+    ├── icon.png
+    ├── manifest.json
+    ├── VideoStorage.css
+    └── vite.svg
+README.md
+[src]
+    ├── App.jsx
+    ├── [Components]
+        ├── BlankPage.jsx
+        ├── CodeStorage.jsx
+        ├── Header.jsx
+        ├── Home.jsx
+        ├── ImageStorage.jsx
+        ├── [Layout]
+        ├── Layout.jsx
+        ├── LinkStorage.jsx
+        ├── OtherStorage.jsx
+        ├── SavedFiles.jsx
+        ├── SidePanel.jsx
+        ├── [Utils]
+        └── VideoStorage.jsx
+    ├── index.css
+    └── main.jsx
+tailwind.config.js
+vite.config.js
+
+--- File Contents ---

@@ -1,0 +1,58 @@
+/* BlankPage.css */
+
+/* Custom styles for the Quill editor container */
+.quill-light .ql-container {
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.quill-dark .ql-container {
+  background-color: #1f2937;
+  color: #ffffff;
+}
+
+/* Custom styles for the Quill toolbar */
+.quill-light .ql-toolbar {
+  background-color: #f5f5f5;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  margin-bottom: 8px;
+}
+
+.quill-dark .ql-toolbar {
+  border: 1px solid #ffffff;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  color: #ffffff;
+  background: rgb(199, 181, 215);
+}
+
+/* Custom styles for Quill editor content */
+.quill-light .ql-editor {
+  height: 320px;
+  background-color: #ffffff;
+  color: #000000;
+}
+
+.quill-dark .ql-editor {
+  min-height: 320px;
+  background-color: #1f2937;
+  color: #ffffff;
+}
+
+.ql-container.ql-snow{
+    border: none;
+    position: inherit;
+}
+
+.ql-formats{
+    color: #ffffff;
+}
+
+
+
+
+
+
+
+

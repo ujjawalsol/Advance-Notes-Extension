@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Header from './Header';
 import { FaFileAlt, FaVideo, FaImage, FaCode, FaFile, FaLink } from 'react-icons/fa';
 
 const noteData = [
@@ -63,8 +62,8 @@ function Home({darkMode, toggleDarkMode}) {
                 <div
                     key={note.id}
                     className={`relative p-4 sm:p-6 md:p-8 rounded-xl shadow-lg transition-all duration-500 transform perspective-1000
-                        ${darkMode ? `bg-gradient-to-r ${note.gradient.dark}` : `bg-gradient-to-r ${note.gradient.light}`}
-                        hover:rotate-x-6 hover:-rotate-y-6 hover:scale-105 hover:shadow-2xl hover:bg-opacity-90 cursor-pointer flex flex-col items-center`}
+                        hover:rotate-x-6 hover:-rotate-y-6 hover:scale-105 hover:shadow-2xl hover:bg-opacity-90 cursor-pointer flex flex-col items-center
+                        ${darkMode ? `bg-gradient-to-r ${note.gradient.dark}` : `bg-gradient-to-r ${note.gradient.light}`}`}
                     onClick={() => {
                         switch (note.id) {
                             case 'blank': navigate('/blank'); break;

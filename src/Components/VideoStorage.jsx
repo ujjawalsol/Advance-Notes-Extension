@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { FaCloudUploadAlt, FaTrash } from 'react-icons/fa';
-import '../../public/VideoStorage.css'; // Optional custom styles
+import '../../public/Styles/VideoStorage.css'; // Optional custom styles
 
 const VideoStorage = () => {
   const [videos, setVideos] = useState([]);

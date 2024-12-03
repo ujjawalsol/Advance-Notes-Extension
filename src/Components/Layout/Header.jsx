@@ -13,8 +13,8 @@ const Header = ({ darkMode, toggleDarkMode }) => {
 
     return (
         <header
-            className={`flex justify-between items-center w-11/12 mt-1 ml-6 mr-6 p-3 relative transition-all duration-300 ${darkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900'
-                } shadow-md rounded-full`}
+            className={`fixed top-0 left-0 right-0 flex justify-between items-center w-full p-3 z-50 transition-all duration-300 ${darkMode ? 'bg-gray-800 text-gray-100' : 'bg-white text-gray-900'
+                } shadow-md`}
         >
             {/* Overlay for background dimming */}
             {isPanelOpen && (
