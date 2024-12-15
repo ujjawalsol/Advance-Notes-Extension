@@ -3,61 +3,8 @@ import { Toaster, toast } from 'react-hot-toast';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { saveItem, getItem } from './Utils/Services';
-// import './BlankPage.css'; // Import custom CSS
 
-const BlankPage = ({ darkMode }) => {
-  const [fileName, setFileName] = useState('Untitled');
-  const [editorContent, setEditorContent] = useState('');
-  const [noteId, setNoteId] = useState(null);
-  const [selectedColor, setSelectedColor] = useState('bg-yellow-400');
-  const [isColorPopupOpen, setIsColorPopupOpen] = useState(false); // Add this state
-
-  useEffect(() => {
-    const savedNoteId = localStorage.getItem('currentNoteId');
-    if (savedNoteId) {
-      const savedNote = getItem(savedNoteId);
-      if (savedNote) {
-        setFileName(savedNote.title);
-        setEditorContent(savedNote.content);
-        setNoteId(savedNoteId);
-        setSelectedColor(savedNote.color || 'bg-white');
-      }
-    }
-  }, []);
-
-  useEffect(() => {
-    const handleAutoSave = () => {
-      try {
-        const data = {
-          id: noteId,
-          title: fileName,
-          content: editorContent,
-          color: selectedColor,
-          type: 'text',
-        };
-        const id = saveItem(data);
-        setNoteId(id);
-        localStorage.setItem('currentNoteId', id);
-      } catch (error) {
-        console.error('Error saving note:', error);
-      }
-    };
-
-    const debounceSave = setTimeout(handleAutoSave, 2000); // Auto-save after 2 seconds of inactivity
-    return () => clearTimeout(debounceSave);
-  }, [fileName, editorContent, selectedColor, noteId]);
-
-  const modules = {
-    toolbar: [
-      [{ header: [1, 2, 3, false] }], // Headers
-      ['bold', 'italic', 'underline', 'strike'], // Basic formatting
-      [{ list: 'ordered' }, { list: 'bullet' }], // Lists
-      ['code-block'], // Code blocks
-      ['link', 'image'], // Links and images
-      ['clean'], // Remove formatting
-    ],
-  };
-
+const BlankPage = () => {
   const colors = [
     'bg-white',       // White
     'bg-yellow-200',  // Soft Yellow
@@ -98,6 +45,60 @@ const BlankPage = ({ darkMode }) => {
     'bg-[#C5CAE9]', // Periwinkle
   ];
 
+  const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
+
+  const [fileName, setFileName] = useState('Untitled');
+  const [editorContent, setEditorContent] = useState('');
+  const [noteId, setNoteId] = useState(null);
+  const [selectedColor, setSelectedColor] = useState(getRandomColor());
+  const [isColorPopupOpen, setIsColorPopupOpen] = useState(false);
+
+  useEffect(() => {
+    const savedNoteId = localStorage.getItem('currentNoteId');
+    if (savedNoteId) {
+      const savedNote = getItem(savedNoteId);
+      if (savedNote) {
+        setFileName(savedNote.title);
+        setEditorContent(savedNote.content);
+        setNoteId(savedNoteId);
+        setSelectedColor(savedNote.color || getRandomColor());
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleAutoSave = () => {
+      try {
+        const data = {
+          id: noteId,
+          title: fileName,
+          content: editorContent,
+          color: selectedColor,
+          type: 'text',
+        };
+        const id = saveItem(data);
+        setNoteId(id);
+        localStorage.setItem('currentNoteId', id);
+      } catch (error) {
+        console.error('Error saving note:', error);
+      }
+    };
+
+    const debounceSave = setTimeout(handleAutoSave, 2000); // Auto-save after 2 seconds of inactivity
+    return () => clearTimeout(debounceSave);
+  }, [fileName, editorContent, selectedColor, noteId]);
+
+  const modules = {
+    toolbar: [
+      [{ header: [1, 2, 3, false] }], // Headers
+      ['bold', 'italic', 'underline', 'strike'], // Basic formatting
+      [{ list: 'ordered' }, { list: 'bullet' }], // Lists
+      ['code-block'], // Code blocks
+      ['link', 'image'], // Links and images
+      ['clean'], // Remove formatting
+    ],
+  };
+
   const togglePopup = () => setIsColorPopupOpen(!isColorPopupOpen);
 
   const selectColor = (color) => {
@@ -107,7 +108,7 @@ const BlankPage = ({ darkMode }) => {
 
   return (
     <>
-      <div className={`w-full max-w-3xl ${selectedColor} ${darkMode ? 'border-gray-700' : 'border-gray-300'} border rounded-lg shadow-lg p-2`}>
+      <div className={`w-full max-w-3xl ${selectedColor} dark:border-gray-700 border-gray-300 border rounded-lg shadow-lg p-2`}>
         <div
           className={`flex justify-evenly rounded-t-3xl border-b-[1px] border-x-[1px] border-t-[1px]  p-4 gap-4 bg-white text-gray-900 border-[#333] focus-within:border-purple-500`}
         >
@@ -120,12 +121,12 @@ const BlankPage = ({ darkMode }) => {
           />
 
           <div className="relative">
-            <div className={`h-7 w-7 items-center justify-center flex rounded-full ${darkMode ? 'border-gray-600' : 'border-black'} border-[2px]`} onClick={togglePopup}>
+            <div className={`h-7 w-7 items-center justify-center flex rounded-full dark:border-gray-600 border-black border-[2px]`} onClick={togglePopup}>
               <div className={`h-[1.35rem] w-[1.35rem] rounded-full ${selectedColor}`}></div>
             </div>
 
             {isColorPopupOpen && (
-              <div className={`absolute top-10 left-[-110px] w-36 p-2 rounded-lg shadow-lg ${darkMode ? 'bg-gray-700' : 'bg-white'} border ${darkMode ? 'border-gray-600' : 'border-gray-300'} flex flex-wrap gap-2`}>
+              <div className={`absolute top-10 left-[-110px] w-36 p-2 rounded-lg shadow-lg dark:bg-gray-700 bg-white border dark:border-gray-600 border-gray-300 flex flex-wrap gap-2`}>
                 {colors.map((color, index) => (
                   <div
                     key={index}
@@ -143,7 +144,7 @@ const BlankPage = ({ darkMode }) => {
           value={editorContent}
           onChange={setEditorContent}
           modules={modules}
-          className={`mb-4 min-h-[300px] ${selectedColor} ${darkMode ? 'quill-dark' : 'quill-light'}`}
+          className={`mb-4 min-h-[300px] ${selectedColor} dark:quill-dark quill-light`}
         />
       </div>
 
@@ -156,7 +157,7 @@ const BlankPage = ({ darkMode }) => {
               }
 
               .quill-dark .ql-container {
-                background-color:  ${ selectedColor};
+                background-color:  ${selectedColor};
                 color: #ffffff;
               }
 
@@ -187,7 +188,7 @@ const BlankPage = ({ darkMode }) => {
 
               .quill-dark .ql-editor {
                 min-height: 320px;
-                background-color:  ${ selectedColor};
+                background-color:  ${selectedColor};
                 color: #000000;
               }
 

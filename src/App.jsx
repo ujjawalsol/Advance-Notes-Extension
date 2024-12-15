@@ -13,24 +13,19 @@ import SavedFiles from './Components/SavedFiles';
 import SavedNotes from './Components/SavedNotes';
 
 const App = () => {
-    const [darkMode, setDarkMode] = useState(false);
-
-    const toggleDarkMode = () => {
-        setDarkMode(!darkMode);
-    };
 
     const router = createHashRouter([
         {
             path: '/',
-            element: <Layout darkMode={darkMode} toggleDarkMode={toggleDarkMode} />,
+            element: <Layout />,
             children: [
-                { index: true, element: <Home darkMode={darkMode} toggleDarkMode={toggleDarkMode} /> },
-                { path: 'blank', element: <BlankPage  darkMode={darkMode} toggleDarkMode={toggleDarkMode}/> },
+                { index: true, element: <Home /> },
+                { path: 'blank', element: <BlankPage /> },
                 { path: 'code', element: <CodeStorage /> },
                 { path: 'video', element: <VideoStorage /> },
                 { path: 'image', element: <ImageStorage /> },
                 { path: 'other', element: <OtherStorage /> },
-                { path: 'link', element: <SavedNotes  darkMode={darkMode}/> },
+                { path: 'link', element: <SavedNotes /> },
                 { path: 'saved', element: <SavedFiles /> }
             ],
         },

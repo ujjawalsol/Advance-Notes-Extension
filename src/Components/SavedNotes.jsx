@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BiPlus, BiSolidTrashAlt } from 'react-icons/bi';
 import { MdEdit } from "react-icons/md";
 
-const SavedNotes = ({ darkMode }) => {
+const SavedNotes = () => {
     const defaultNotes = [
         {
             id: '1',
@@ -46,34 +46,6 @@ const SavedNotes = ({ darkMode }) => {
             createdAt: '2024-11-02T18:00:00',
             color: 'purple',
         },
-        {
-            id: '7',
-            title: 'Recipe Ideas',
-            content: 'List of recipes to try out this weekend.',
-            createdAt: '2024-11-02T18:00:00',
-            color: 'purple',
-        },
-        {
-            id: '8',
-            title: 'Recipe Ideas',
-            content: 'List of recipes to try out this weekend.',
-            createdAt: '2024-11-02T18:00:00',
-            color: 'purple',
-        },
-        {
-            id: '9',
-            title: 'Recipe Ideas',
-            content: 'List of recipes to try out this weekend.',
-            createdAt: '2024-11-02T18:00:00',
-            color: 'purple',
-        },
-        {
-            id: '10',
-            title: 'Recipe Ideas',
-            content: 'List of recipes to try out this weekend.',
-            createdAt: '2024-11-02T18:00:00',
-            color: 'purple',
-        },
     ];
 
     const [selectedNote, setSelectedNote] = useState(null);
@@ -92,29 +64,27 @@ const SavedNotes = ({ darkMode }) => {
                 <div className="fixed inset-0 backdrop-blur-sm z-10" onClick={handleClose}></div>
             )}
             <div className="relative w-full max-w-7xl">
-                {/* Background Blur Overlay */}
-
                 <div className={`grid grid-cols-2 gap-4 md:gap-8 ${selectedNote ? 'pointer-events-none' : ''}`}>
                     {/* + New Note Box */}
                     <div
                         className={`animate-scale-in relative h-[170px] w-[170px] p-4 sm:p-6 md:p-8 rounded-xl shadow-lg transition-all duration-500 transform perspective-1000
-                        ${darkMode ? 'bg-gradient-to-r from-indigo-900 to-indigo-700' : 'bg-gradient-to-r from-indigo-300 to-indigo-100'}
+                        bg-gradient-to-r from-indigo-300 to-indigo-100 dark:from-indigo-900 dark:to-indigo-700
                         hover:rotate-x-6 hover:-rotate-y-6 hover:scale-105 hover:shadow-2xl hover:bg-opacity-90 cursor-pointer flex flex-col items-center`}
                         onClick={() => { /* Add new note logic */ }}
                         style={{ transformStyle: 'preserve-3d' }}
                     >
-                        <div className={`w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center rounded-full ${darkMode ? 'bg-indigo-400' : 'bg-indigo-500'}`}>
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-indigo-500 dark:bg-indigo-400">
                             <BiPlus className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
                         </div>
                         <h2 className="text-xl sm:text-2xl font-semibold mt-4">Add Notes</h2>
-                        <p className={`text-center ${darkMode ? 'text-slate-400' : ''}`}>Create and update documents</p>
+                        <p className="text-center text-slate-800 dark:text-slate-400">Create and update documents</p>
                     </div>
 
                     {/* Display saved notes */}
                     {defaultNotes.map(note => (
                         <div
                             key={note.id}
-                            className={` animate-scale-in w-[170px] h-[170px] relative p-4 sm:p-6 md:p-8 rounded-xl shadow-lg transition-all duration-500 transform perspective-1000
+                            className={`animate-scale-in w-[170px] h-[170px] relative p-4 sm:p-6 md:p-8 rounded-xl shadow-lg transition-all duration-500 transform perspective-1000
                             ${selectedNote && selectedNote.id === note.id ? 'z-20' : ''}
                             hover:rotate-x-6 hover:-rotate-y-6 hover:scale-105 hover:shadow-2xl hover:bg-opacity-90 cursor-pointer flex flex-col`}
                             style={{
@@ -141,10 +111,6 @@ const SavedNotes = ({ darkMode }) => {
                                             e.stopPropagation();
                                             console.log('Edit clicked for:', note.title);
                                         }}
-                                        style={{
-                                            animationDelay: '100',
-                                            animationFillMode: 'forwards',
-                                        }}
                                     >
                                         <MdEdit className="h-6 w-6" />
                                     </div>
@@ -154,10 +120,6 @@ const SavedNotes = ({ darkMode }) => {
                                         onClick={(e) => {
                                             e.stopPropagation();
                                             console.log('Delete clicked for:', note.title);
-                                        }}
-                                        style={{
-                                            animationDelay: '100',
-                                            animationFillMode: 'forwards',
                                         }}
                                     >
                                         <BiSolidTrashAlt className="h-6 w-6" />
