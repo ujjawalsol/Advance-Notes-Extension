@@ -8,7 +8,7 @@ import 'codemirror/mode/xml/xml';
 import 'codemirror/mode/css/css';
 import 'codemirror/mode/htmlmixed/htmlmixed';
 import 'codemirror/mode/clike/clike';
-import '../../public/Styles/CodeStorage.css'; // Import the custom CSS file
+import '../../assets/styles/CodeStorage.css'; // Import the custom CSS file
 
 const CodeStorage = () => {
   const [code, setCode] = useState('');

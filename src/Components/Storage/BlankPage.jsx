@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
-import { saveItem, getItem } from './Utils/Services';
+import { saveItem, getItem } from '../Utils/Services';
 
 const BlankPage = () => {
   const colors = [

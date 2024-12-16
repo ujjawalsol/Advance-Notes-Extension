@@ -5,10 +5,11 @@ package-lock.json
 package.json
 postcss.config.js
 [public]
-    ├── CodeStorage.css
     ├── icon.png
     ├── manifest.json
-    ├── VideoStorage.css
+    ├── [Styles]
+        ├── CodeStorage.css
+        └── VideoStorage.css
     └── vite.svg
 README.md
 [src]
@@ -16,16 +17,19 @@ README.md
     ├── [Components]
         ├── BlankPage.jsx
         ├── CodeStorage.jsx
-        ├── Header.jsx
-        ├── Home.jsx
+        ├── [Home]
+            └── Home.jsx
         ├── ImageStorage.jsx
         ├── [Layout]
-        ├── Layout.jsx
+            ├── Header.jsx
+            ├── Layout.jsx
+            └── SidePanel.jsx
         ├── LinkStorage.jsx
         ├── OtherStorage.jsx
         ├── SavedFiles.jsx
-        ├── SidePanel.jsx
+        ├── SavedNotes.jsx
         ├── [Utils]
+            └── Services.jsx
         └── VideoStorage.jsx
     ├── index.css
     └── main.jsx
