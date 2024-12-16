@@ -39,6 +39,12 @@ const SavedNotes = () => {
         setSelectedNote(null);
     };
 
+    const handleAddNoteClick = () => {
+        const newNoteId = `note_${Date.now()}`;
+        localStorage.setItem('currentNoteId', newNoteId);
+        navigate(`/edit-note/${id}/${newNoteId}`);
+    };
+
     return (
         <>
             {selectedNote && (
@@ -51,7 +57,7 @@ const SavedNotes = () => {
                         className={`animate-scale-in relative h-[170px] w-[170px] p-4 sm:p-6 md:p-8 rounded-xl shadow-lg transition-all duration-500 transform perspective-1000
                         bg-gradient-to-r from-indigo-300 to-indigo-100 dark:from-indigo-900 dark:to-indigo-700
                         hover:rotate-x-6 hover:-rotate-y-6 hover:scale-105 hover:shadow-2xl hover:bg-opacity-90 cursor-pointer flex flex-col items-center`}
-                        onClick={() => navigate(`/edit-note/${id}`)}
+                        onClick={handleAddNoteClick}
                         style={{ transformStyle: 'preserve-3d' }}
                     >
                         <div className="w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center rounded-full bg-indigo-500 dark:bg-indigo-400">
@@ -73,11 +79,11 @@ const SavedNotes = () => {
                             }}
                             onClick={() => handleCardClick(note)}
                         >
-                            <h3 className="text-lg font-semibold mb-1 text-white truncate">{note.title}</h3>
-                            <p className="text-sm text-gray-100 flex-grow overflow-hidden overflow-ellipsis whitespace-normal">
+                            <h3 className="text-lg font-semibold mb-1 text-black truncate">{note.title}</h3>
+                            <p className="text-sm text-gray-900 flex-grow overflow-hidden overflow-ellipsis whitespace-normal">
                                 {note.content.length > 60 ? note.content.substring(0, 60) + "..." : note.content}
                             </p>
-                            <div className="mt-1 text-xs text-gray-200">
+                            <div className="mt-1 text-xs text-gray-500">
                                 {new Date(note.createdAt).toLocaleDateString()}
                             </div>
 

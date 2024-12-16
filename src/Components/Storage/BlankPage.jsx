@@ -20,12 +20,13 @@ const BlankPage = () => {
   const [editorContent, setEditorContent] = useState('');
   const [selectedColor, setSelectedColor] = useState(getRandomColor());
   const [isColorPopupOpen, setIsColorPopupOpen] = useState(false);
-  const [currentNoteId, setCurrentNoteId] = useState(noteId || `note_${Date.now()}`);
+  const [currentNoteId, setCurrentNoteId] = useState(noteId || localStorage.getItem('currentNoteId') || `note_${Date.now()}`);
   const debounceTimeout = useRef(null);
 
   useEffect(() => {
-    if (noteId) {
-      getItem(id, noteId).then(savedNote => {
+    if (noteId || localStorage.getItem('currentNoteId')) {
+      const noteToLoad = noteId || localStorage.getItem('currentNoteId');
+      getItem(id, noteToLoad).then(savedNote => {
         if (savedNote) {
           setFileName(savedNote.title);
           setEditorContent(savedNote.content);
