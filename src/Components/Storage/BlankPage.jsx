@@ -1,92 +1,77 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
 import { Toaster, toast } from 'react-hot-toast';
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 import { saveItem, getItem } from '../Utils/Services';
 
 const BlankPage = () => {
+  const { id, noteId } = useParams();
   const colors = [
-    'bg-white',       // White
-    'bg-yellow-200',  // Soft Yellow
-    'bg-red-200',     // Soft Red
-    'bg-green-200',   // Soft Green
-    'bg-blue-200',    // Soft Blue
-    'bg-purple-200',  // Soft Purple
-    'bg-pink-200',    // Soft Pink
-    'bg-teal-200',    // Soft Teal
-    'bg-orange-200',  // Soft Orange
-    'bg-gray-200',    // Light Gray
-    'bg-[#FFE5B4]', // Soft Peach
-    'bg-[#FFB3C6]', // Pastel Pink
-    'bg-[#FFDAB9]', // Light Apricot
-    'bg-[#FFFACD]', // Lemon Chiffon
-    'bg-[#F0FFF0]', // Honeydew
-    'bg-[#E6E6FA]', // Lavender
-    'bg-[#B3E5FC]', // Light Blue
-    'bg-[#C8E6C9]', // Pale Green
-    'bg-[#FFCCBC]', // Melon
-    'bg-[#FFF9C4]', // Soft Yellow
-    'bg-[#D7CCC8]', // Warm Taupe
-    'bg-[#D1C4E9]', // Soft Purple
-    'bg-[#F8BBD0]', // Blush Pink
-    'bg-[#B2EBF2]', // Aqua Blue
-    'bg-[#DCEDC8]', // Pastel Green
-    'bg-[#FFE0B2]', // Light Orange
-    'bg-[#F3E5F5]', // Soft Lilac
-    'bg-[#FFECB3]', // Buttercream
-    'bg-[#BCAAA4]', // Subtle Beige
-    'bg-[#CFD8DC]', // Misty Gray
-    'bg-[#FFCDD2]', // Rose Pink
-    'bg-[#BBDEFB]', // Sky Blue
-    'bg-[#B2DFDB]', // Teal Mint
-    'bg-[#FFF3E0]', // Creamy Orange
-    'bg-[#E0F7FA]', // Soft Cyan
-    'bg-[#FFEBEE]', // Petal Pink
-    'bg-[#C5CAE9]', // Periwinkle
+    'bg-white', 'bg-yellow-200', 'bg-red-200', 'bg-green-200', 'bg-blue-200', 'bg-purple-200', 'bg-pink-200', 'bg-teal-200', 'bg-orange-200', 'bg-gray-200',
+    'bg-[#FFE5B4]', 'bg-[#FFB3C6]', 'bg-[#FFDAB9]', 'bg-[#FFFACD]', 'bg-[#F0FFF0]', 'bg-[#E6E6FA]', 'bg-[#B3E5FC]', 'bg-[#C8E6C9]', 'bg-[#FFCCBC]', 'bg-[#FFF9C4]',
+    'bg-[#D7CCC8]', 'bg-[#D1C4E9]', 'bg-[#F8BBD0]', 'bg-[#B2EBF2]', 'bg-[#DCEDC8]', 'bg-[#FFE0B2]', 'bg-[#F3E5F5]', 'bg-[#FFECB3]', 'bg-[#BCAAA4]', 'bg-[#CFD8DC]',
+    'bg-[#FFCDD2]', 'bg-[#BBDEFB]', 'bg-[#B2DFDB]', 'bg-[#FFF3E0]', 'bg-[#E0F7FA]', 'bg-[#FFEBEE]', 'bg-[#C5CAE9]'
   ];
 
   const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
 
   const [fileName, setFileName] = useState('Untitled');
   const [editorContent, setEditorContent] = useState('');
-  const [noteId, setNoteId] = useState(null);
   const [selectedColor, setSelectedColor] = useState(getRandomColor());
   const [isColorPopupOpen, setIsColorPopupOpen] = useState(false);
+  const [currentNoteId, setCurrentNoteId] = useState(noteId || `note_${Date.now()}`);
+  const debounceTimeout = useRef(null);
 
   useEffect(() => {
-    const savedNoteId = localStorage.getItem('currentNoteId');
-    if (savedNoteId) {
-      const savedNote = getItem(savedNoteId);
-      if (savedNote) {
-        setFileName(savedNote.title);
-        setEditorContent(savedNote.content);
-        setNoteId(savedNoteId);
-        setSelectedColor(savedNote.color || getRandomColor());
-      }
+    if (noteId) {
+      getItem(id, noteId).then(savedNote => {
+        if (savedNote) {
+          setFileName(savedNote.title);
+          setEditorContent(savedNote.content);
+          setSelectedColor(savedNote.color || getRandomColor());
+          setCurrentNoteId(savedNote.id);
+        }
+      }).catch(error => {
+        console.error('Error retrieving note:', error);
+      });
     }
-  }, []);
+  }, [id, noteId]);
 
   useEffect(() => {
     const handleAutoSave = () => {
       try {
+        // Check if the content is empty or contains only whitespace
+        if (!editorContent.trim()) {
+          return;
+        }
+
         const data = {
-          id: noteId,
+          id: currentNoteId,
           title: fileName,
           content: editorContent,
           color: selectedColor,
-          type: 'text',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
         };
-        const id = saveItem(data);
-        setNoteId(id);
-        localStorage.setItem('currentNoteId', id);
+        saveItem(id, data).then(id => {
+          setCurrentNoteId(id);
+          localStorage.setItem('currentNoteId', id);
+        }).catch(error => {
+          console.error('Error saving note:', error);
+        });
       } catch (error) {
         console.error('Error saving note:', error);
       }
     };
 
-    const debounceSave = setTimeout(handleAutoSave, 2000); // Auto-save after 2 seconds of inactivity
-    return () => clearTimeout(debounceSave);
-  }, [fileName, editorContent, selectedColor, noteId]);
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+    debounceTimeout.current = setTimeout(handleAutoSave, 2000); // Auto-save after 2 seconds of inactivity
+
+    return () => clearTimeout(debounceTimeout.current);
+  }, [fileName, editorContent, selectedColor, currentNoteId, id]);
 
   const modules = {
     toolbar: [
@@ -150,7 +135,7 @@ const BlankPage = () => {
 
       <Toaster position="top-center" reverseOrder={false} />
 
-      <style jsx>{`
+      <style>{`
               quill-light .ql-container {
                 background-color: #ffffff;
                 color: #000000;

@@ -1,30 +1,34 @@
 import { useEffect } from "react";
 
-const defaultSchema = {
-    notes: [],
-    files: [],
-    links: [],
-    images: [],
-    videos: [],
-    settings: {
-      theme: "light",
-      language: "en",
-    },
-  };
-  
+const dbName = "NoteItDB";
+const dbVersion = 1;
 
-const useInitializeLocalStorage = () => {
+const useInitializeIndexedDB = () => {
   useEffect(() => {
-    const schemaKey = "NoteIt";
+    const request = indexedDB.open(dbName, dbVersion);
 
-    // Check if the schema already exists
-    if (!localStorage.getItem(schemaKey)) {
-      console.log("Initializing localStorage with default schema...");
-      localStorage.setItem(schemaKey, JSON.stringify(defaultSchema));
-    } else {
-      console.log("Schema already exists in localStorage.");
-    }
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+
+      // Create object stores for each type of storage
+      db.createObjectStore("BlankPage", { keyPath: "id" });
+      db.createObjectStore("VideoStorage", { keyPath: "id" });
+      db.createObjectStore("ImageStorage", { keyPath: "id" });
+      db.createObjectStore("CodeSpace", { keyPath: "id" });
+      db.createObjectStore("OtherFiles", { keyPath: "id" });
+      db.createObjectStore("LinkStorage", { keyPath: "id" });
+
+      console.log("IndexedDB initialized with object stores.");
+    };
+
+    request.onsuccess = () => {
+      console.log("IndexedDB opened successfully.");
+    };
+
+    request.onerror = (event) => {
+      console.error("Error opening IndexedDB:", event.target.errorCode);
+    };
   }, []);
 };
 
-export default useInitializeLocalStorage;
+export default useInitializeIndexedDB;
