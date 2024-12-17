@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Controlled as CodeMirror } from 'react-codemirror2';
+import { useParams } from 'react-router-dom';
 import 'codemirror/lib/codemirror.css';
 import 'codemirror/theme/material.css';
 import 'codemirror/mode/javascript/javascript';
@@ -9,21 +10,76 @@ import 'codemirror/mode/css/css';
 import 'codemirror/mode/htmlmixed/htmlmixed';
 import 'codemirror/mode/clike/clike';
 import '../../assets/styles/CodeStorage.css'; // Import the custom CSS file
+import { saveItem, getItem } from '../Utils/Services'; // Import saveItem and getItem functions
 
 const CodeStorage = () => {
+  const { id, noteId } = useParams();
+  const colors = [
+    'bg-white', 'bg-yellow-200', 'bg-red-200', 'bg-green-200', 'bg-blue-200', 'bg-purple-200', 'bg-pink-200', 'bg-teal-200', 'bg-orange-200', 'bg-gray-200',
+    'bg-[#FFE5B4]', 'bg-[#FFB3C6]', 'bg-[#FFDAB9]', 'bg-[#FFFACD]', 'bg-[#F0FFF0]', 'bg-[#E6E6FA]', 'bg-[#B3E5FC]', 'bg-[#C8E6C9]', 'bg-[#FFCCBC]', 'bg-[#FFF9C4]',
+    'bg-[#D7CCC8]', 'bg-[#D1C4E9]', 'bg-[#F8BBD0]', 'bg-[#B2EBF2]', 'bg-[#DCEDC8]', 'bg-[#FFE0B2]', 'bg-[#F3E5F5]', 'bg-[#FFECB3]', 'bg-[#BCAAA4]', 'bg-[#CFD8DC]',
+    'bg-[#FFCDD2]', 'bg-[#BBDEFB]', 'bg-[#B2DFDB]', 'bg-[#FFF3E0]', 'bg-[#E0F7FA]', 'bg-[#FFEBEE]', 'bg-[#C5CAE9]'
+  ];
+
+  const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
+
   const [code, setCode] = useState('');
   const [fileName, setFileName] = useState('untitled'); // State for file name
   const [mode, setMode] = useState('javascript'); // Default mode
+  const [selectedColor, setSelectedColor] = useState(getRandomColor()); // State for selected color
+  const [currentNoteId, setCurrentNoteId] = useState(noteId || localStorage.getItem('currentNoteId') || `note_${Date.now()}`); // State for current note ID
+  const debounceTimeout = useRef(null);
 
   useEffect(() => {
-    const savedCode = localStorage.getItem('savedCode');
-    const savedFileName = localStorage.getItem('fileName') || 'untitled'; // Get saved file name or default to 'untitled'
-
-    if (savedCode) {
-      setCode(savedCode);
+    if (noteId || localStorage.getItem('currentNoteId')) {
+      const noteToLoad = noteId || localStorage.getItem('currentNoteId');
+      getItem('CodeSpace', noteToLoad).then(savedNote => {
+        if (savedNote) {
+          setFileName(savedNote.title);
+          setCode(savedNote.content);
+          setSelectedColor(savedNote.color || getRandomColor());
+          setCurrentNoteId(savedNote.id);
+        }
+      }).catch(error => {
+        console.error('Error retrieving note:', error);
+      });
     }
-    setFileName(savedFileName);
-  }, []);
+  }, [noteId]);
+
+  useEffect(() => {
+    const handleAutoSave = () => {
+      try {
+        // Check if the content is empty or contains only whitespace
+        if (!code.trim()) {
+          return;
+        }
+
+        const data = {
+          id: currentNoteId,
+          title: fileName,
+          content: code,
+          color: selectedColor,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        saveItem('CodeSpace', data).then(id => {
+          setCurrentNoteId(id);
+          localStorage.setItem('currentNoteId', id);
+        }).catch(error => {
+          console.error('Error saving note:', error);
+        });
+      } catch (error) {
+        console.error('Error saving note:', error);
+      }
+    };
+
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+    debounceTimeout.current = setTimeout(handleAutoSave, 2000); // Auto-save after 2 seconds of inactivity
+
+    return () => clearTimeout(debounceTimeout.current);
+  }, [fileName, code, selectedColor, currentNoteId]);
 
   const handleCodeChange = (editor, data, value) => {
     setCode(value);
@@ -32,12 +88,6 @@ const CodeStorage = () => {
 
   const handleFileNameChange = (e) => {
     setFileName(e.target.value);
-  };
-
-  const handleSaveCode = () => {
-    localStorage.setItem('savedCode', code);
-    localStorage.setItem('fileName', fileName);
-    alert(`Code saved as "${fileName}" successfully!`);
   };
 
   // Detect language mode based on the code
@@ -86,13 +136,6 @@ const CodeStorage = () => {
           className="border border-gray-300 rounded-lg custom-codemirror"
         />
       </div>
-
-      <button
-        onClick={handleSaveCode}
-        className="mt-4 bg-purple-600 text-white font-bold py-2 px-6 rounded-lg shadow-lg hover:bg-purple-700 transition-all duration-200"
-      >
-        Save Code
-      </button>
     </div>
   );
 };

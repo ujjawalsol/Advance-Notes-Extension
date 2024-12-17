@@ -1,122 +1,114 @@
-import React, { useState, useRef } from 'react';
-import { FaCloudUploadAlt, FaTrash } from 'react-icons/fa';
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams } from 'react-router-dom';
+import { saveItem, getItem } from '../Utils/Services';
 
 const ImageStorage = () => {
-  const [images, setImages] = useState([]);
-  const [error, setError] = useState('');
-  const [isSaved, setIsSaved] = useState(false);
-  const fileInputRef = useRef(null);
+  const { id, noteId } = useParams();
+  const colors = [
+    'bg-white', 'bg-yellow-200', 'bg-red-200', 'bg-green-200', 'bg-blue-200', 'bg-purple-200', 'bg-pink-200', 'bg-teal-200', 'bg-orange-200', 'bg-gray-200',
+    'bg-[#FFE5B4]', 'bg-[#FFB3C6]', 'bg-[#FFDAB9]', 'bg-[#FFFACD]', 'bg-[#F0FFF0]', 'bg-[#E6E6FA]', 'bg-[#B3E5FC]', 'bg-[#C8E6C9]', 'bg-[#FFCCBC]', 'bg-[#FFF9C4]',
+    'bg-[#D7CCC8]', 'bg-[#D1C4E9]', 'bg-[#F8BBD0]', 'bg-[#B2EBF2]', 'bg-[#DCEDC8]', 'bg-[#FFE0B2]', 'bg-[#F3E5F5]', 'bg-[#FFECB3]', 'bg-[#BCAAA4]', 'bg-[#CFD8DC]',
+    'bg-[#FFCDD2]', 'bg-[#BBDEFB]', 'bg-[#B2DFDB]', 'bg-[#FFF3E0]', 'bg-[#E0F7FA]', 'bg-[#FFEBEE]', 'bg-[#C5CAE9]'
+  ];
 
-  // Handle drag and drop for images
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
-    handleFiles(files);
-  };
+  const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
 
-  // Handle selected image files
-  const handleFiles = (files) => {
-    const imageFiles = files.filter((file) => file.type.includes('image'));
-    if (imageFiles.length > 0) {
-      setImages([...images, ...imageFiles]);
-      setError(''); // Clear previous error
-    } else {
-      setError('Please upload valid image files.');
+  const [fileName, setFileName] = useState('Untitled');
+  const [imageContent, setImageContent] = useState('');
+  const [selectedColor, setSelectedColor] = useState(getRandomColor());
+  const [currentNoteId, setCurrentNoteId] = useState(noteId || localStorage.getItem('currentNoteId') || `note_${Date.now()}`);
+  const debounceTimeout = useRef(null);
+
+  useEffect(() => {
+    if (noteId || localStorage.getItem('currentNoteId')) {
+      const noteToLoad = noteId || localStorage.getItem('currentNoteId');
+      getItem('ImageStorage', noteToLoad).then(savedNote => {
+        if (savedNote) {
+          setFileName(savedNote.title);
+          setImageContent(savedNote.content);
+          setSelectedColor(savedNote.color || getRandomColor());
+          setCurrentNoteId(savedNote.id);
+        }
+      }).catch(error => {
+        console.error('Error retrieving note:', error);
+      });
+    }
+  }, [noteId]);
+
+  useEffect(() => {
+    const handleAutoSave = () => {
+      try {
+        // Check if the content is empty or contains only whitespace
+        if (!imageContent.trim()) {
+          return;
+        }
+
+        const data = {
+          id: currentNoteId,
+          title: fileName,
+          content: imageContent,
+          color: selectedColor,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+        saveItem('ImageStorage', data).then(id => {
+          setCurrentNoteId(id);
+          localStorage.setItem('currentNoteId', id);
+        }).catch(error => {
+          console.error('Error saving note:', error);
+        });
+      } catch (error) {
+        console.error('Error saving note:', error);
+      }
+    };
+
+    if (debounceTimeout.current) {
+      clearTimeout(debounceTimeout.current);
+    }
+    debounceTimeout.current = setTimeout(handleAutoSave, 2000); // Auto-save after 2 seconds of inactivity
+
+    return () => clearTimeout(debounceTimeout.current);
+  }, [fileName, imageContent, selectedColor, currentNoteId]);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImageContent(reader.result);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  // Handle manual file selection
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
-    handleFiles(files);
-  };
-
-  // Handle image delete
-  const handleDelete = (index) => {
-    const updatedImages = images.filter((_, i) => i !== index);
-    setImages(updatedImages);
-  };
-
-  // Handle saving images
-  const handleSave = () => {
-    if (images.length > 0) {
-      setIsSaved(true);
-      alert('Images saved successfully!');
-    }
+  const handleFileNameChange = (e) => {
+    setFileName(e.target.value);
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-6 rounded-3xl shadow-2xl">
-      <h1 className="text-2xl font-bold mb-8 text-gray-900">Image Storage</h1>
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 bg-gradient-to-b from-purple-200 to-white shadow-xl rounded-lg">
+      <h1 className="text-2xl font-bold mb-6 text-gray-900">Image Storage</h1>
 
-      {/* Drag and Drop Area */}
-      {images.length === 0 && (
-        <div
-          className="w-full max-w-2xl border-dashed border-4 border-green-400 rounded-xl flex flex-col items-center justify-center p-16 bg-white shadow-lg hover:shadow-2xl transition-shadow duration-300"
-          onDragOver={(e) => e.preventDefault()}
-          onDrop={handleDrop}
-        >
-          <FaCloudUploadAlt className="text-green-400 text-8xl mb-6" />
-          <p className="text-lg text-gray-800 font-semibold mb-4">
-            Drag & drop your image files here, or
-          </p>
-          <button
-            className="bg-green-500 text-white font-semibold py-3 px-6 rounded-full shadow-lg hover:bg-green-600 transition-all duration-300"
-            onClick={() => fileInputRef.current.click()}
-          >
-            Select Image Files
-          </button>
-          <input
-            type="file"
-            ref={fileInputRef}
-            className="hidden"
-            accept="image/*"
-            multiple
-            onChange={handleFileUpload}
-          />
-        </div>
-      )}
+      {/* File Name Input */}
+      <input
+        type="text"
+        value={fileName}
+        onChange={handleFileNameChange}
+        className="mb-2 p-3 border border-gray-400 rounded-lg shadow-md w-full max-w-xs text-gray-700 focus:ring-2 focus:ring-purple-600"
+        placeholder="Enter file name"
+      />
 
-      {error && <p className="text-red-500 mt-4">{error}</p>}
+      {/* Image Upload Input */}
+      <input
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="mb-4 p-3 border border-gray-400 rounded-lg shadow-md w-full max-w-xs text-gray-700 focus:ring-2 focus:ring-purple-600"
+      />
 
-      {/* Image Preview Section */}
-      {images.length > 0 && (
-        <div className="w-full max-w-4xl mt-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-            {images.map((image, index) => (
-              <div
-                key={index}
-                className="relative  bg-gradient-to-b from-green-200 to-white rounded-3xl shadow-xl p-4 hover:shadow-2xl transition-shadow duration-300"
-              >
-                <img
-                  src={URL.createObjectURL(image)}
-                  alt="Uploaded"
-                  className="w-full h-64 object-cover rounded-lg"
-                />
-                <button
-                  className="absolute top-3 right-3 bg-green-600 text-white p-2 rounded-full hover:bg-green-700 transition duration-300"
-                  onClick={() => handleDelete(index)}
-                >
-                  <FaTrash />
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Save Button */}
-          {!isSaved && (
-            <button
-              className="w-full bg-gradient-to-r from-green-600 to-green-400 text-white font-bold py-4 px-8 rounded-full shadow-lg hover:from-green-700 hover:to-green-500 transition-all duration-300"
-              onClick={handleSave}
-            >
-              Save Images
-            </button>
-          )}
-        </div>
-      )}
-
-      {images.length === 0 && (
-        <p className="text-gray-600 mt-6">No images uploaded yet. Add your images to view them here.</p>
+      {/* Display Image */}
+      {imageContent && (
+        <img src={imageContent} alt="Uploaded" className="max-w-full h-auto rounded-lg shadow-md" />
       )}
     </div>
   );
