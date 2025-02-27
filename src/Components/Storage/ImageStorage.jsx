@@ -1,26 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import { saveItem, getItem } from '../Utils/Services';
+import React, { useState, useRef, useEffect } from 'react';
+import { saveItem, getItem, compressAndConvertToText } from '../Utils/Services';
 
-const ImageStorage = () => {
-  const { id, noteId } = useParams();
-  const colors = [
-    'bg-white', 'bg-yellow-200', 'bg-red-200', 'bg-green-200', 'bg-blue-200', 'bg-purple-200', 'bg-pink-200', 'bg-teal-200', 'bg-orange-200', 'bg-gray-200',
-    'bg-[#FFE5B4]', 'bg-[#FFB3C6]', 'bg-[#FFDAB9]', 'bg-[#FFFACD]', 'bg-[#F0FFF0]', 'bg-[#E6E6FA]', 'bg-[#B3E5FC]', 'bg-[#C8E6C9]', 'bg-[#FFCCBC]', 'bg-[#FFF9C4]',
-    'bg-[#D7CCC8]', 'bg-[#D1C4E9]', 'bg-[#F8BBD0]', 'bg-[#B2EBF2]', 'bg-[#DCEDC8]', 'bg-[#FFE0B2]', 'bg-[#F3E5F5]', 'bg-[#FFECB3]', 'bg-[#BCAAA4]', 'bg-[#CFD8DC]',
-    'bg-[#FFCDD2]', 'bg-[#BBDEFB]', 'bg-[#B2DFDB]', 'bg-[#FFF3E0]', 'bg-[#E0F7FA]', 'bg-[#FFEBEE]', 'bg-[#C5CAE9]'
-  ];
-
-  const getRandomColor = () => colors[Math.floor(Math.random() * colors.length)];
-
+const ImageStorage = ({ noteId }) => {
+    const colors = [
+      'bg-white', 'bg-yellow-200', 'bg-red-200', 'bg-green-200', 'bg-blue-200', 'bg-purple-200', 'bg-pink-200', 'bg-teal-200', 'bg-orange-200', 'bg-gray-200',
+      'bg-[#FFE5B4]', 'bg-[#FFB3C6]', 'bg-[#FFDAB9]', 'bg-[#FFFACD]', 'bg-[#F0FFF0]', 'bg-[#E6E6FA]', 'bg-[#B3E5FC]', 'bg-[#C8E6C9]', 'bg-[#FFCCBC]', 'bg-[#FFF9C4]',
+      'bg-[#D7CCC8]', 'bg-[#D1C4E9]', 'bg-[#F8BBD0]', 'bg-[#B2EBF2]', 'bg-[#DCEDC8]', 'bg-[#FFE0B2]', 'bg-[#F3E5F5]', 'bg-[#FFECB3]', 'bg-[#BCAAA4]', 'bg-[#CFD8DC]',
+      'bg-[#FFCDD2]', 'bg-[#BBDEFB]', 'bg-[#B2DFDB]', 'bg-[#FFF3E0]', 'bg-[#E0F7FA]', 'bg-[#FFEBEE]', 'bg-[#C5CAE9]'
+    ];
+  
+    const getRandomColor = () => colors[Math.floor(Math.random() * colors?.length)];
+  
   const [fileName, setFileName] = useState('Untitled');
   const [imageContent, setImageContent] = useState('');
   const [selectedColor, setSelectedColor] = useState(getRandomColor());
   const [currentNoteId, setCurrentNoteId] = useState(noteId || localStorage.getItem('currentNoteId') || `note_${Date.now()}`);
   const debounceTimeout = useRef(null);
 
+
   useEffect(() => {
-    if (noteId || localStorage.getItem('currentNoteId')) {
+    if (noteId || localStorage?.getItem('currentNoteId')) {
       const noteToLoad = noteId || localStorage.getItem('currentNoteId');
       getItem('ImageStorage', noteToLoad).then(savedNote => {
         if (savedNote) {
@@ -70,14 +69,11 @@ const ImageStorage = () => {
     return () => clearTimeout(debounceTimeout.current);
   }, [fileName, imageContent, selectedColor, currentNoteId]);
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImageContent(reader.result);
-      };
-      reader.readAsDataURL(file);
+      const compressedImage = await compressAndConvertToText(file);
+      setImageContent(compressedImage);
     }
   };
 
@@ -108,7 +104,7 @@ const ImageStorage = () => {
 
       {/* Display Image */}
       {imageContent && (
-        <img src={imageContent} alt="Uploaded" className="max-w-full h-auto rounded-lg shadow-md" />
+        <img src={`data:image/*;base64,${imageContent}`} alt="Uploaded" className="max-w-full h-auto rounded-lg shadow-md" />
       )}
     </div>
   );

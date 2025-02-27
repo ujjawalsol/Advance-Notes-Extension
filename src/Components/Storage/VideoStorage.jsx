@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { FaCloudUploadAlt, FaTrash } from 'react-icons/fa';
-import '../../assets/styles/VideoStorage.css'; // Optional custom styles
+import { saveItem, compressAndConvertToText } from '../Utils/Services';
 
 const VideoStorage = () => {
   const [videos, setVideos] = useState([]);
@@ -8,24 +8,26 @@ const VideoStorage = () => {
   const [isSaved, setIsSaved] = useState(false);
   const fileInputRef = useRef(null);
 
-  const handleDrop = (e) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files);
+  const handleFileUpload = async (e) => {
+    const files = Array.from(e.target.files);
     handleFiles(files);
   };
 
-  const handleFiles = (files) => {
-    const videoFiles = files.filter((file) => file.type.includes('video'));
-    if (videoFiles.length > 0) {
-      setVideos([...videos, ...videoFiles]);
-      setError('');
-    } else {
+  const handleFiles = async (files) => {
+    const videoFiles = files.filter(file => file.type.startsWith('video/'));
+    if (videoFiles.length === 0) {
       setError('Please upload valid video files.');
+      return;
     }
+    setError('');
+    const videoPromises = videoFiles.map(file => compressAndConvertToText(file));
+    const videoData = await Promise.all(videoPromises);
+    setVideos(videoData);
   };
 
-  const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files);
     handleFiles(files);
   };
 
@@ -34,8 +36,12 @@ const VideoStorage = () => {
     setVideos(updatedVideos);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (videos.length > 0) {
+      const savePromises = videos.map((video, index) =>
+        saveItem('VideoStorage', { id: `video_${index}`, content: video })
+      );
+      await Promise.all(savePromises);
       setIsSaved(true);
       alert('Videos saved successfully!');
     }
@@ -85,7 +91,7 @@ const VideoStorage = () => {
                 className="relative bg-gradient-to-b from-red-200 to-white rounded-3xl shadow-xl p-4 hover:shadow-2xl transition-shadow duration-300"
               >
                 <video controls className="w-full rounded-lg">
-                  <source src={URL.createObjectURL(video)} type={video.type} />
+                  <source src={`data:video/*;base64,${video}`} type="video/mp4" />
                   Your browser does not support the video tag.
                 </video>
                 <button

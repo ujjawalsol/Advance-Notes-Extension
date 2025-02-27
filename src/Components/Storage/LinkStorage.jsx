@@ -1,40 +1,44 @@
-import React, { useState } from 'react';
-import { FaLink, FaTrash, FaEdit } from 'react-icons/fa';
+import React, { useState, useEffect } from 'react';
+import { FaLink, FaTrash } from 'react-icons/fa';
+import { saveItem, getAllItems, deleteItem } from '../Utils/Services';
 
 const LinkStorage = () => {
   const [links, setLinks] = useState([]);
   const [newLink, setNewLink] = useState({ title: '', url: '' });
   const [isEditing, setIsEditing] = useState(false);
-  const [currentIndex, setCurrentIndex] = useState(null);
+  const [editIndex, setEditIndex] = useState(null);
 
-  // Add a new link
-  const handleAddLink = () => {
-    if (!newLink.title || !newLink.url) {
-      return alert('Please fill in all fields');
-    }
+  useEffect(() => {
+    const fetchLinks = async () => {
+      const storedLinks = await getAllItems('LinkStorage');
+      setLinks(storedLinks);
+    };
+    fetchLinks();
+  }, []);
 
-    setLinks([...links, newLink]);
+  const handleAddLink = async () => {
+    const id = await saveItem('LinkStorage', newLink);
+    setLinks([...links, { ...newLink, id }]);
     setNewLink({ title: '', url: '' });
   };
 
-  // Edit an existing link
   const handleEditLink = (index) => {
     setNewLink(links[index]);
     setIsEditing(true);
-    setCurrentIndex(index);
+    setEditIndex(index);
   };
 
-  // Save the edited link
-  const handleSaveEdit = () => {
-    const updatedLinks = [...links];
-    updatedLinks[currentIndex] = newLink;
+  const handleSaveEdit = async () => {
+    const updatedLinks = links.map((link, index) => (index === editIndex ? newLink : link));
+    await saveItem('LinkStorage', newLink);
     setLinks(updatedLinks);
     setIsEditing(false);
     setNewLink({ title: '', url: '' });
   };
 
-  // Delete a link
-  const handleDeleteLink = (index) => {
+  const handleDeleteLink = async (index) => {
+    const link = links[index];
+    await deleteItem('LinkStorage', link.id);
     const updatedLinks = links.filter((_, i) => i !== index);
     setLinks(updatedLinks);
   };
@@ -44,7 +48,6 @@ const LinkStorage = () => {
       <div className="max-w-4xl w-full bg-white rounded-lg shadow-lg p-8">
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Manage Your Links</h2>
 
-        {/* Form to add or edit a link */}
         <div className="mb-6">
           <div className="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4">
             <input
@@ -82,10 +85,9 @@ const LinkStorage = () => {
           </div>
         </div>
 
-        {/* List of saved links */}
-        {links.length > 0 ? (
+        {links?.length > 0 ? (
           <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {links.map((link, index) => (
+            {links?.map((link, index) => (
               <li
                 key={index}
                 className="bg-gradient-to-r from-indigo-50 to-indigo-100 border border-gray-200 rounded-lg shadow-lg p-6 flex justify-between items-center space-x-4 hover:shadow-2xl transition-shadow duration-200"
@@ -106,22 +108,20 @@ const LinkStorage = () => {
                     onClick={() => handleEditLink(index)}
                     className="text-yellow-500 hover:text-yellow-600 transition"
                   >
-                    <FaEdit className="h-5 w-5" />
+                    Edit
                   </button>
                   <button
                     onClick={() => handleDeleteLink(index)}
                     className="text-red-500 hover:text-red-600 transition"
                   >
-                    <FaTrash className="h-5 w-5" />
+                    <FaTrash />
                   </button>
                 </div>
               </li>
             ))}
           </ul>
         ) : (
-          <div className="text-center text-gray-500 font-semibold mt-10">
-            No links added yet.
-          </div>
+          <p>No links saved yet.</p>
         )}
       </div>
     </div>

@@ -11,7 +11,7 @@ const SavedNotes = () => {
     const [selectedNote, setSelectedNote] = useState(null);
 
     useEffect(() => {
-        getAllItems(id).then(fetchedNotes => {
+        getAllItems(id)?.then(fetchedNotes => {
             setNotes(fetchedNotes);
         }).catch(error => {
             console.error('Error fetching notes:', error);
@@ -28,8 +28,8 @@ const SavedNotes = () => {
 
     const handleDeleteClick = async (note) => {
         try {
-            await deleteItem(id, note.id);
-            setNotes(notes.filter(n => n.id !== note.id));
+            await deleteItem(id, note?.id);
+            setNotes(notes.filter(n => n?.id !== note?.id));
         } catch (error) {
             console.error('Error deleting note:', error);
         }
@@ -81,7 +81,7 @@ const SavedNotes = () => {
                         >
                             <h3 className="text-lg font-semibold mb-1 text-black truncate">{note.title}</h3>
                             <p className="text-sm text-gray-900 flex-grow overflow-hidden overflow-ellipsis whitespace-normal">
-                                {note.content.length > 60 ? note.content.substring(0, 60) + "..." : note.content}
+                                {note?.content?.length > 60 ? note.content.substring(0, 60) + "..." : note.content}
                             </p>
                             <div className="mt-1 text-xs text-gray-500">
                                 {new Date(note.createdAt).toLocaleDateString()}
